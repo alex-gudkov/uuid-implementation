@@ -1,32 +1,16 @@
 function randomArrayElement(array) {
-  const randomIndex = Math.floor(Math.random() * array.length);
+  const index = Math.floor(Math.random() * array.length);
 
-  return array.at(randomIndex);
+  return array[index];
 }
 
+const HEX_DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'];
+
 function randomHexString(length) {
-  const hexDigits = [
-    '0',
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-    '9',
-    'A',
-    'B',
-    'C',
-    'D',
-    'E',
-    'F',
-  ];
   let hexString = '';
 
   for (let i = 0; i < length; i++) {
-    hexString += randomArrayElement(hexDigits);
+    hexString += randomArrayElement(HEX_DIGITS);
   }
 
   return hexString;
@@ -40,19 +24,23 @@ function randomMacAddress() {
 }
 
 // UUID timestamp is measured in 100 nanoseconds intervals
-const MILLISECONDS_TO_100_NANOSECONDS = 10000;
+const MILLISECOND_TO_100_NANOSECONDS = 10000;
 
 const UUID_EPOCH_DATE = new Date('1582-10-14T00:00:00.000Z');
 
 const HEX_RADIX = 16;
 
+const UUID_VERSION = '1';
+
+const UUID_VARIANT_1_VALUES = ['8', '9', 'A', 'B'];
+
 function uuidV1({ date, macAddress } = {}) {
-  // set default values
+  // define undefined values
   date ??= new Date();
   macAddress ??= randomMacAddress();
 
   // calculate timestamp from UUID epoch
-  const uuidTimestamp = (date - UUID_EPOCH_DATE) * MILLISECONDS_TO_100_NANOSECONDS;
+  const uuidTimestamp = (date - UUID_EPOCH_DATE) * MILLISECOND_TO_100_NANOSECONDS;
 
   // use the low 60 bits of the timestamp (last 15 hex chars)
   const uuidTimestampHex = uuidTimestamp.toString(HEX_RADIX).padStart(15, '0').slice(-15);
@@ -64,16 +52,17 @@ function uuidV1({ date, macAddress } = {}) {
   const timeMid = uuidTimestampHex.slice(-12, -8);
 
   // xxxxxxxx-xxxx-1XXX-yxxx-xxxxxxxxxxxx
-  const timeHiAndVersion = '1' + uuidTimestampHex.slice(-15, -12);
+  const versionAndTimeHigh = UUID_VERSION + uuidTimestampHex.slice(-15, -12);
 
   // xxxxxxxx-xxxx-1xxx-YXXX-xxxxxxxxxxxx
-  const clockSeqHiAndReserved = randomArrayElement(['8', '9', 'A', 'B']) + randomHexString(3);
+  const uuidVariant = randomArrayElement(UUID_VARIANT_1_VALUES);
+  const variantAndRandom = uuidVariant + randomHexString(3);
 
   // xxxxxxxx-xxxx-1xxx-yxxx-XXXXXXXXXXXX
   const nodeId = macAddress.split(':').join('');
 
   // build UUID
-  const uuidParts = [timeLow, timeMid, timeHiAndVersion, clockSeqHiAndReserved, nodeId];
+  const uuidParts = [timeLow, timeMid, versionAndTimeHigh, variantAndRandom, nodeId];
 
   return uuidParts.join('-').toLowerCase();
 }
