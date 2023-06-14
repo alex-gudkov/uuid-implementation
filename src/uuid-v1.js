@@ -56,13 +56,13 @@ function uuidV1({ date, macAddress } = {}) {
 
   // xxxxxxxx-xxxx-1xxx-YXXX-xxxxxxxxxxxx
   const uuidVariant = randomArrayElement(UUID_VARIANT_1_VALUES);
-  const variantAndRandom = uuidVariant + randomHexString(3);
+  const variantAndClockSequence = uuidVariant + randomHexString(3);
 
   // xxxxxxxx-xxxx-1xxx-yxxx-XXXXXXXXXXXX
   const nodeId = macAddress.split(':').join('');
 
   // build UUID
-  const uuidParts = [timeLow, timeMid, versionAndTimeHigh, variantAndRandom, nodeId];
+  const uuidParts = [timeLow, timeMid, versionAndTimeHigh, variantAndClockSequence, nodeId];
 
   return uuidParts.join('-').toLowerCase();
 }
